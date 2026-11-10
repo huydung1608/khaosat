@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Khảo sát báo giá thiết kế website</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Layout: một cột 720px, thanh bước dính trên cùng, mỗi bước là một tấm thẻ trắng trên nền xám lạnh */
+  --bg: #f4f6fa;
+  --surface: #ffffff;
+  --ink: #16213a;
+  --muted: #5b6680;
+  --line: #dde3ee;
+  --accent: #2457d6;
+  --accent-soft: #e9effd;
+  --ok: #23854a;
+  --warn: #b4442f;
+  --font: "Be Vietnam Pro", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 720px; margin: 0 auto; padding: 0 16px 72px; }
+
+header.top { padding: 36px 0 20px; display: grid; gap: 10px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; color: var(--muted); }
+.brand img { max-height: 36px; max-width: 140px; }
+h1 { font-size: 28px; line-height: 1.25; margin: 0; text-wrap: balance; }
+.lead { color: var(--muted); margin: 0; max-width: 62ch; }
+
+.steps {
+  position: sticky; top: 0; z-index: 5;
+  background: rgba(244,246,250,.95); backdrop-filter: blur(6px);
+  padding: 12px 0; display: grid; gap: 8px;
+}
+.steps-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); gap: 8px; }
+.steps-row b { color: var(--ink); font-weight: 600; }
+.bar { height: 6px; background: var(--line); border-radius: 999px; overflow: hidden; }
+.bar > span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s ease; }
+.dots { display: flex; gap: 6px; flex-wrap: wrap; }
+.dot {
+  font: inherit; font-size: 12px; font-weight: 600;
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid var(--line); background: var(--surface); color: var(--muted);
+  cursor: pointer; padding: 0;
+}
+.dot.done { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
+.dot.current { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+  padding: 26px; display: grid; gap: 24px;
+}
+.card-head { display: grid; gap: 4px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.card-head .num { font-size: 13px; font-weight: 600; color: var(--accent); }
+.card-head h2 { font-size: 21px; margin: 0; }
+.card-head p { margin: 0; color: var(--muted); font-size: 14px; }
+
+.q { display: grid; gap: 10px; border: 0; padding: 0; margin: 0; min-width: 0; }
+.q > legend, .q > label.qlabel { font-weight: 600; padding: 0; margin-bottom: 2px; }
+.hint { display: block; font-size: 13px; color: var(--muted); font-weight: 400; margin-top: 2px; }
+.req { color: var(--warn); }
+
+.choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.choice { position: relative; }
+.choice input { position: absolute; opacity: 0; pointer-events: none; }
+.choice span {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--surface); cursor: pointer; font-size: 15px;
+  transition: border-color .15s, background .15s;
+}
+.choice span:hover { border-color: var(--accent); }
+.choice input:checked + span { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.choice input[type=checkbox]:checked + span::before { content: "✓"; }
+.choice input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+input[type=text], input[type=tel], input[type=email], textarea {
+  width: 100%; font: inherit; color: var(--ink); background: #fbfcfe;
+  border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+}
+textarea { min-height: 92px; resize: vertical; }
+input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.note { font-size: 14px; padding: 8px 12px; }
+
+.nav { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+button { font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 12px 22px; cursor: pointer; }
+.primary { background: var(--accent); color: #fff; }
+.primary:hover { filter: brightness(1.08); }
+.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.secondary { background: var(--surface); color: var(--accent); border: 1px solid var(--accent); }
+button:focus-visible, .dot:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+button:disabled { opacity: .6; cursor: default; }
+.err { color: var(--warn); font-size: 14px; margin: 10px 0 0; }
+
+.done {
+  background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--ok);
+  border-radius: 16px; padding: 26px; display: grid; gap: 12px;
+}
+.done h2 { margin: 0; font-size: 22px; }
+.done p { margin: 0; color: var(--muted); }
+.done .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+[hidden] { display: none !important; }
+@media (max-width: 480px) { h1 { font-size: 23px; } .card { padding: 18px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand" id="brand"></div>
+    <h1>Khảo sát để báo giá thiết kế website</h1>
+    <p class="lead">Anh/chị trả lời giúp các câu dưới đây, khoảng 10–15 phút. Thông tin càng rõ thì báo giá càng sát, tránh phát sinh về sau. Câu nào chưa chắc cứ chọn "Chưa rõ" hoặc bỏ trống, bên mình sẽ tư vấn thêm.</p>
+  </header>
+
+  <div class="steps" id="stepsBar">
+    <div class="steps-row"><span>Bước <b id="stepNum">1</b>/<span id="stepTotal"></span>: <b id="stepName"></b></span><span id="answeredText"></span></div>
+    <div class="bar"><span id="progBar"></span></div>
+    <nav class="dots" id="dots" aria-label="Các bước"></nav>
+  </div>
+
+  <form id="survey" novalidate>
+    <div id="stepsHost"></div>
+    <p class="err" id="formErr" hidden></p>
+    <div class="nav">
+      <button type="button" class="ghost" id="prevBtn">← Quay lại</button>
+      <button type="button" class="primary" id="nextBtn">Tiếp tục →</button>
+      <button type="submit" class="primary" id="submitBtn" hidden>Gửi khảo sát</button>
+    </div>
+  </form>
+
+  <div id="doneBox" class="done" hidden>
+    <h2>Cảm ơn anh/chị!</h2>
+    <p id="doneMsg"></p>
+    <div class="actions">
+      <button type="button" class="secondary" id="copyBtn">Sao chép câu trả lời</button>
+      <button type="button" class="ghost" id="editBtn">Sửa lại câu trả lời</button>
+    </div>
+    <p class="hint" id="copyHint"></p>
+  </div>
+</div>
+
+<script>
+/* ================== CẤU HÌNH – CHỈ CẦN SỬA PHẦN NÀY ================== */
+const CONFIG = {
+  // Dán URL Web App của Google Apps Script vào đây (xem HUONG-DAN.md). Để trống thì trang chỉ cho sao chép câu trả lời.
+  SCRIPT_URL: "",
+  // Access Key của Web3Forms (lấy miễn phí tại web3forms.com bằng email của bạn). Khi khách gửi, câu trả lời sẽ bắn vào email đó.
+  WEB3FORMS_KEY: "",
+  // Tên / thương hiệu của bạn hiện ở đầu trang. Có thể để trống.
+  BRAND_NAME: "",
+  // Logo dạng đường dẫn ảnh (ví dụ "logo.png" đặt cùng thư mục). Để trống nếu không dùng.
+  BRAND_LOGO: "",
+  // Số Zalo của bạn để khách liên hệ khi gửi lỗi
+  CONTACT_ZALO: "",
+  // Mức độ phức tạp và khoảng giá GỢI Ý NỘI BỘ (chỉ ghi vào Google Sheets, khách không thấy). Chỉnh theo giá của bạn.
+  PRICE_TIERS: [
+    { max: 8,        name: "Cơ bản",       hint: "Landing page / web giới thiệu ít trang – tham khảo 5–12 triệu" },
+    { max: 20,       name: "Trung bình",   hint: "Web công ty, catalogue sản phẩm, bán hàng đơn giản – tham khảo 12–30 triệu" },
+    { max: 40,     name: "Phức tạp",     hint: "Web bán hàng đầy đủ, nhiều tích hợp, thiết kế riêng – tham khảo 30–70 triệu" },
+    { max: Infinity, name: "Rất phức tạp", hint: "Hệ thống riêng, nhiều phân quyền / tích hợp – từ 70 triệu, báo giá theo từng hạng mục" }
+  ]
+};
+/* ===================================================================== */
+
+/* Mỗi lựa chọn: [nhãn, điểm phức tạp]. Điểm dùng để ước lượng khối lượng công việc. */
+const STEPS = [
+  { title: "Thông tin liên hệ", desc: "Để bên mình gửi báo giá và liên lạc khi cần làm rõ.", qs: [
+    { id: "name", type: "text", label: "Họ tên người liên hệ", required: true },
+    { id: "phone", type: "tel", label: "Số điện thoại / Zalo", required: true },
+    { id: "email", type: "email", label: "Email" },
+    { id: "company", type: "text", label: "Tên công ty / thương hiệu" },
+    { id: "industry", type: "text", label: "Lĩnh vực kinh doanh", hint: "Ví dụ: thiết bị vệ sinh, thời trang, nhà hàng, spa…" },
+    { id: "decider", type: "radio", label: "Ai là người quyết định cuối cùng về web?", options: [["Tôi trực tiếp quyết định", 0], ["Cần hỏi ý kiến sếp / đối tác", 0]] }
+  ]},
+  { title: "Loại website và mục tiêu", desc: "Phần quyết định quy mô và phần lớn chi phí.", qs: [
+    { id: "siteType", type: "radio", label: "Anh/chị cần loại website nào?", options: [
+      ["Landing page (1 trang giới thiệu / chạy quảng cáo)", 0],
+      ["Web giới thiệu công ty / dịch vụ", 2],
+      ["Catalogue sản phẩm, khách xem rồi liên hệ / xin báo giá", 4],
+      ["Web bán hàng: khách đặt hàng, thanh toán trên web", 8],
+      ["Web đặt lịch / đặt chỗ (spa, phòng khám, nhà hàng…)", 6],
+      ["Hệ thống quản lý nội bộ / web app theo yêu cầu", 12],
+      ["Chưa rõ, cần tư vấn", 3]
+    ]},
+    { id: "goals", type: "checkbox", label: "Mục tiêu chính của website?", hint: "Chọn được nhiều", options: [
+      ["Tăng uy tín, chuyên nghiệp", 0], ["Có thêm khách hàng / đơn hàng", 0], ["Chạy quảng cáo Facebook / Google", 0],
+      ["Bán hàng trực tiếp trên web", 0], ["Giảm việc thủ công, quản lý tập trung", 0], ["Tuyển dụng, tuyển đại lý", 0]
+    ]},
+    { id: "existing", type: "radio", label: "Hiện tại đã có website chưa?", options: [
+      ["Chưa có", 0], ["Có, muốn làm mới hoàn toàn", 1], ["Có, chỉ muốn nâng cấp / sửa", 0]
+    ]},
+    { id: "existingUrl", type: "text", label: "Link website hiện tại (nếu có)" }
+  ]},
+  { title: "Quy mô và nội dung", desc: "Số trang, số sản phẩm và việc chuẩn bị nội dung ảnh hưởng nhiều đến thời gian làm.", qs: [
+    { id: "pages", type: "radio", label: "Ước tính bao nhiêu trang (không tính từng trang sản phẩm)?", hint: "Ví dụ: Trang chủ, Giới thiệu, Dịch vụ, Tin tức, Liên hệ = 5 trang", options: [
+      ["1 trang", 0], ["Khoảng 5 trang", 1], ["6 – 10 trang", 2], ["11 – 20 trang", 4], ["Trên 20 trang", 6], ["Chưa rõ", 2]
+    ]},
+    { id: "products", type: "radio", label: "Số sản phẩm / dịch vụ cần đưa lên web?", options: [
+      ["Không có sản phẩm", 0], ["Dưới 50", 1], ["50 – 300", 2], ["300 – 1.000", 4], ["Trên 1.000", 6]
+    ]},
+    { id: "contentReady", type: "radio", label: "Nội dung chữ (giới thiệu, mô tả sản phẩm) đã có chưa?", options: [
+      ["Đã có đầy đủ", 0], ["Có một phần", 1], ["Chưa có, cần bên làm web viết giúp", 3]
+    ]},
+    { id: "photos", type: "radio", label: "Hình ảnh sản phẩm / công ty đã có chưa?", options: [
+      ["Có đủ, ảnh đẹp", 0], ["Có nhưng chưa đẹp / chưa đủ", 1], ["Chưa có, cần chụp hoặc mua ảnh", 2]
+    ]},
+    { id: "dataEntry", type: "radio", label: "Ai sẽ nhập sản phẩm và nội dung ban đầu lên web?", options: [
+      ["Bên tôi tự nhập", 0], ["Nhờ bên làm web nhập giúp", 2], ["Chuyển từ web cũ / file Excel sang", 2]
+    ]},
+    { id: "languages", type: "radio", label: "Website cần mấy ngôn ngữ?", options: [
+      ["Chỉ tiếng Việt", 0], ["Tiếng Việt và tiếng Anh", 3], ["3 ngôn ngữ trở lên", 5]
+    ]}
+  ]},
+  { title: "Chức năng cần có", desc: "Mỗi chức năng là một phần việc riêng. Chỉ chọn những gì thật sự cần trong giai đoạn đầu.", qs: [
+    { id: "features", type: "checkbox", label: "Website cần những chức năng nào?", hint: "Chọn được nhiều", options: [
+      ["Form liên hệ, nút gọi / Zalo / Messenger", 0],
+      ["Tin tức, blog", 1],
+      ["Tìm kiếm và bộ lọc sản phẩm (giá, hãng, kích thước…)", 2],
+      ["Gửi yêu cầu báo giá", 1],
+      ["Giỏ hàng và đặt hàng", 3],
+      ["Tài khoản khách hàng, lịch sử đơn", 2],
+      ["Giá riêng cho đại lý / khách sỉ", 3],
+      ["Mã giảm giá, chương trình khuyến mãi", 2],
+      ["Quản lý tồn kho", 3],
+      ["Đặt lịch hẹn", 2],
+      ["Hệ thống showroom / chi nhánh có bản đồ", 1],
+      ["Báo cáo, thống kê doanh thu", 2],
+      ["Tích điểm, thành viên", 3]
+    ]},
+    { id: "otherFeatures", type: "textarea", label: "Chức năng đặc biệt khác (nếu có)", hint: "Mô tả bằng lời thường, ví dụ: khách chọn mẫu và xem giá theo kích thước" },
+    { id: "admins", type: "radio", label: "Ai sẽ quản trị website?", options: [
+      ["1 người, toàn quyền", 0], ["Vài người, quyền như nhau", 1], ["Nhiều người, mỗi người một quyền khác nhau", 3]
+    ]}
+  ]},
+  { title: "Kết nối và tích hợp", desc: "Kết nối với hệ thống bên ngoài thường tốn nhiều công kiểm thử. Bỏ qua nếu chưa cần.", qs: [
+    { id: "integrations", type: "checkbox", label: "Website cần kết nối với gì?", hint: "Chọn được nhiều", options: [
+      ["Google Analytics, Facebook Pixel (đo lường quảng cáo)", 0],
+      ["Cổng thanh toán online (VNPay, MoMo, ZaloPay…)", 2],
+      ["Đơn vị vận chuyển (GHN, GHTK, Viettel Post…)", 2],
+      ["Phần mềm bán hàng (KiotViet, Sapo, Nhanh.vn…)", 3],
+      ["Phần mềm kế toán / ERP", 4],
+      ["Zalo OA / gửi tin nhắn Zalo tự động", 2],
+      ["Google Sheets / Larkbase", 1],
+      ["Email tự động cho khách", 1]
+    ]},
+    { id: "integrationNote", type: "text", label: "Tên phần mềm cụ thể đang dùng (nếu có)" }
+  ]},
+  { title: "Thiết kế và thương hiệu", desc: "Mức độ thiết kế là yếu tố chênh lệch giá lớn nhất sau chức năng.", qs: [
+    { id: "designLevel", type: "radio", label: "Anh/chị muốn mức thiết kế nào?", options: [
+      ["Dùng giao diện mẫu, chỉnh màu và logo theo thương hiệu", 0],
+      ["Thiết kế riêng theo thương hiệu", 3],
+      ["Thiết kế riêng cao cấp, nhiều hiệu ứng chuyển động", 6],
+      ["Chưa rõ, cần tư vấn", 2]
+    ]},
+    { id: "identity", type: "radio", label: "Bộ nhận diện thương hiệu hiện có?", options: [
+      ["Có đầy đủ (logo, màu, font, hướng dẫn)", 0], ["Chỉ có logo", 0], ["Chưa có logo, cần thiết kế", 3]
+    ]},
+    { id: "style", type: "checkbox", label: "Phong cách mong muốn?", hint: "Chọn được nhiều", options: [
+      ["Sang trọng", 0], ["Hiện đại", 0], ["Tối giản", 0], ["Trẻ trung, năng động", 0], ["Gần gũi, ấm áp", 0], ["Kỹ thuật, chuyên nghiệp", 0]
+    ]},
+    { id: "colors", type: "text", label: "Màu chủ đạo", hint: "Ví dụ: xanh dương và trắng, hoặc \"lấy theo logo\"" },
+    { id: "references", type: "textarea", label: "Website tham khảo anh/chị thích, và thích điểm gì?", hint: "Dán link, mỗi dòng một web. Có thể thêm web KHÔNG thích để bên mình tránh." },
+    { id: "devices", type: "radio", label: "Khách của anh/chị xem web chủ yếu trên?", options: [
+      ["Điện thoại", 0], ["Máy tính", 0], ["Cả hai như nhau", 0], ["Không rõ", 0]
+    ]}
+  ]},
+  { title: "Kỹ thuật và vận hành", desc: "", qs: [
+    { id: "domainHosting", type: "radio", label: "Tên miền và hosting (máy chủ) hiện có?", options: [
+      ["Đã có cả hai", 0], ["Có tên miền, chưa có hosting", 0], ["Chưa có gì, nhờ bên làm web lo trọn gói", 1]
+    ]},
+    { id: "domainName", type: "text", label: "Tên miền đang có hoặc muốn dùng", hint: "Ví dụ: congty.vn" },
+    { id: "traffic", type: "radio", label: "Dự kiến lượng truy cập?", options: [
+      ["Dưới 100 người / ngày", 0], ["100 – 1.000 người / ngày", 1], ["Trên 1.000 người / ngày hoặc chạy quảng cáo lớn", 3], ["Chưa rõ", 0]
+    ]},
+    { id: "seo", type: "radio", label: "Nhu cầu SEO (lên top Google)?", options: [
+      ["Không cần", 0], ["SEO cơ bản (cấu trúc chuẩn, tốc độ, khai báo Google)", 1], ["SEO chuyên sâu, có viết bài định kỳ", 4]
+    ]},
+    { id: "maintenance", type: "radio", label: "Sau khi bàn giao, có cần bảo trì / hỗ trợ không?", options: [
+      ["Không, bên tôi tự lo", 0], ["Có, gói bảo trì hằng tháng", 0], ["Chỉ hỗ trợ khi có lỗi", 0], ["Cần tư vấn", 0]
+    ]},
+    { id: "training", type: "radio", label: "Có cần hướng dẫn nhân viên sử dụng trang quản trị không?", options: [
+      ["Có", 0], ["Không", 0]
+    ]}
+  ]},
+  { title: "Thời gian và ngân sách", desc: "Giúp bên mình đề xuất phương án vừa với kế hoạch của anh/chị.", qs: [
+    { id: "deadline", type: "radio", label: "Muốn website hoạt động khi nào?", options: [
+      ["Gấp, dưới 2 tuần", 4], ["Trong khoảng 1 tháng", 1], ["1 – 2 tháng", 0], ["Linh hoạt", 0]
+    ]},
+    { id: "deadlineReason", type: "text", label: "Có mốc nào bắt buộc không?", hint: "Ví dụ: khai trương, ra mắt sản phẩm, trước Tết" },
+    { id: "budget", type: "radio", label: "Ngân sách dự kiến?", hint: "Chỉ để bên mình đề xuất phương án phù hợp, không ảnh hưởng chất lượng tư vấn", options: [
+      ["Dưới 10 triệu", 0], ["10 – 20 triệu", 0], ["20 – 40 triệu", 0], ["40 – 80 triệu", 0], ["Trên 80 triệu", 0], ["Chưa xác định, cần tư vấn", 0]
+    ]},
+    { id: "phased", type: "radio", label: "Anh/chị có sẵn sàng làm theo giai đoạn không?", hint: "Làm bản cốt lõi trước, thêm chức năng sau để giảm chi phí ban đầu", options: [
+      ["Có", 0], ["Không, muốn làm đầy đủ một lần", 0], ["Cần tư vấn", 0]
+    ]},
+    { id: "extra", type: "textarea", label: "Còn mong muốn hay lo ngại gì khác không?" }
+  ]}
+];
+
+/* ================== PHẦN XỬ LÝ – KHÔNG CẦN SỬA ================== */
+const form = document.getElementById("survey");
+const host = document.getElementById("stepsHost");
+const ALLQ = [];
+let current = 0;
+let lastText = "";
+
+function el(tag, attrs, kids) {
+  const n = document.createElement(tag);
+  for (const k in (attrs || {})) {
+    if (k === "text") n.textContent = attrs[k]; else n.setAttribute(k, attrs[k]);
+  }
+  (kids || []).forEach(c => c && n.appendChild(c));
+  return n;
+}
+
+function build() {
+  const brand = document.getElementById("brand");
+  if (CONFIG.BRAND_LOGO) brand.appendChild(el("img", { src: CONFIG.BRAND_LOGO, alt: CONFIG.BRAND_NAME || "Logo" }));
+  if (CONFIG.BRAND_NAME) brand.appendChild(el("span", { text: CONFIG.BRAND_NAME }));
+  if (!brand.children.length) brand.hidden = true;
+
+  STEPS.forEach((s, si) => {
+    const card = el("section", { class: "card", "data-step": si, hidden: "" });
+    card.appendChild(el("div", { class: "card-head" }, [
+      el("span", { class: "num", text: "Bước " + (si + 1) + " / " + STEPS.length }),
+      el("h2", { text: s.title }),
+      s.desc ? el("p", { text: s.desc }) : null
+    ]));
+    s.qs.forEach(q => {
+      ALLQ.push(Object.assign({ step: si, section: s.title }, q));
+      let w;
+      if (q.type === "radio" || q.type === "checkbox") {
+        w = el("fieldset", { class: "q" });
+        const lg = el("legend", { text: q.label });
+        if (q.hint) lg.appendChild(el("span", { class: "hint", text: q.hint }));
+        w.appendChild(lg);
+        const box = el("div", { class: "choices" });
+        q.options.forEach((o, oi) => {
+          const id = q.id + "_" + oi;
+          box.appendChild(el("label", { class: "choice", for: id }, [
+            el("input", { type: q.type, name: q.id, id: id, value: o[0], "data-p": o[1] }),
+            el("span", { text: o[0] })
+          ]));
+        });
+        w.appendChild(box);
+        w.appendChild(el("input", { type: "text", class: "note", id: q.id + "_note", placeholder: "Ghi chú thêm (không bắt buộc)", "aria-label": "Ghi chú: " + q.label }));
+      } else {
+        w = el("div", { class: "q" });
+        const lb = el("label", { class: "qlabel", for: q.id, text: q.label });
+        if (q.required) lb.appendChild(el("span", { class: "req", text: " *" }));
+        if (q.hint) lb.appendChild(el("span", { class: "hint", text: q.hint }));
+        w.appendChild(lb);
+        w.appendChild(q.type === "textarea" ? el("textarea", { id: q.id, name: q.id }) : el("input", { type: q.type, id: q.id, name: q.id }));
+      }
+      card.appendChild(w);
+    });
+    host.appendChild(card);
+
+    const dot = el("button", { type: "button", class: "dot", text: String(si + 1), "aria-label": "Bước " + (si + 1) + ": " + s.title });
+    dot.addEventListener("click", () => { if (si <= maxReached || validateStep(current)) go(si); });
+    document.getElementById("dots").appendChild(dot);
+  });
+  document.getElementById("stepTotal").textContent = STEPS.length;
+}
+
+let maxReached = 0;
+function go(i) {
+  current = Math.max(0, Math.min(STEPS.length - 1, i));
+  maxReached = Math.max(maxReached, current);
+  host.querySelectorAll(".card").forEach(c => c.hidden = Number(c.dataset.step) !== current);
+  document.getElementById("stepNum").textContent = current + 1;
+  document.getElementById("stepName").textContent = STEPS[current].title;
+  document.getElementById("progBar").style.width = (100 * (current + 1) / STEPS.length) + "%";
+  document.querySelectorAll(".dot").forEach((d, di) => {
+    d.classList.toggle("current", di === current);
+    d.classList.toggle("done", di < current || (di <= maxReached && di !== current));
+  });
+  document.getElementById("prevBtn").style.visibility = current === 0 ? "hidden" : "visible";
+  const last = current === STEPS.length - 1;
+  document.getElementById("nextBtn").hidden = last;
+  document.getElementById("submitBtn").hidden = !last;
+  document.getElementById("formErr").hidden = true;
+  window.scrollTo({ top: 0 });
+}
+
+function validateStep(i) {
+  const missing = ALLQ.filter(q => q.step === i && q.required && !document.getElementById(q.id).value.trim());
+  const err = document.getElementById("formErr");
+  if (missing.length) {
+    err.textContent = "Anh/chị điền giúp: " + missing.map(q => q.label).join(", ") + ".";
+    err.hidden = false;
+    document.getElementById(missing[0].id).focus();
+    return false;
+  }
+  err.hidden = true;
+  return true;
+}
+
+function collect() {
+  const out = {};
+  let score = 0;
+  ALLQ.forEach(q => {
+    let v;
+    if (q.type === "radio" || q.type === "checkbox") {
+      const picked = [...form.querySelectorAll('input[name="' + q.id + '"]:checked')];
+      picked.forEach(x => score += Number(x.dataset.p || 0));
+      v = q.type === "radio" ? (picked[0] ? picked[0].value : "") : picked.map(x => x.value);
+    } else {
+      v = document.getElementById(q.id).value.trim();
+    }
+    const n = document.getElementById(q.id + "_note");
+    out[q.id] = { label: q.label, section: q.section, value: v, note: n ? n.value.trim() : "" };
+  });
+  const tier = CONFIG.PRICE_TIERS.find(t => score <= t.max);
+  return { answers: out, score: score, tier: tier };
+}
+
+function fmt(a) {
+  let v = Array.isArray(a.value) ? a.value.join(", ") : a.value;
+  if (a.note) v = (v ? v + " " : "") + "(Ghi chú: " + a.note + ")";
+  return v;
+}
+
+function toText(answers, when) {
+  const lines = ["KHẢO SÁT BÁO GIÁ WEBSITE", "Gửi lúc: " + when];
+  let sec = "";
+  Object.keys(answers).forEach(k => {
+    const a = answers[k];
+    if (a.section !== sec) { sec = a.section; lines.push("", "== " + sec.toUpperCase() + " =="); }
+    lines.push("• " + a.label + "\n  → " + (fmt(a) || "(bỏ trống)"));
+  });
+  return lines.join("\n");
+}
+
+function updateAnswered() {
+  const { answers } = collect();
+  const keys = Object.keys(answers);
+  const n = keys.filter(k => fmt(answers[k])).length;
+  document.getElementById("answeredText").textContent = "Đã trả lời " + n + "/" + keys.length + " câu";
+}
+
+document.getElementById("nextBtn").addEventListener("click", () => { if (validateStep(current)) go(current + 1); });
+document.getElementById("prevBtn").addEventListener("click", () => go(current - 1));
+form.addEventListener("input", updateAnswered);
+form.addEventListener("change", updateAnswered);
+
+form.addEventListener("submit", async e => {
+  e.preventDefault();
+  for (let i = 0; i < STEPS.length; i++) { if (!validateStep(i)) { go(i); validateStep(i); return; } }
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true; btn.textContent = "Đang gửi…";
+  const { answers, score, tier } = collect();
+  const when = new Date().toLocaleString("vi-VN");
+  lastText = toText(answers, when);
+
+  // Một dòng trong Google Sheets: cột = câu hỏi
+  const row = { "Thời gian gửi": when };
+  Object.keys(answers).forEach(k => row[answers[k].label] = fmt(answers[k]));
+  row["Điểm phức tạp (nội bộ)"] = score;
+  row["Mức độ (nội bộ)"] = tier ? tier.name : "";
+  row["Gợi ý giá (nội bộ)"] = tier ? tier.hint : "";
+
+  let sent = false;
+  if (CONFIG.WEB3FORMS_KEY) {
+    try {
+      const internal = "\n\n--- NỘI BỘ (khách không thấy) ---\nĐiểm phức tạp: " + score +
+        "\nMức độ: " + (tier ? tier.name : "") + "\nGợi ý giá: " + (tier ? tier.hint : "");
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          access_key: CONFIG.WEB3FORMS_KEY,
+          subject: "Khảo sát web mới: " + answers.name.value + " – " + answers.phone.value,
+          from_name: answers.name.value,
+          message: lastText + internal
+        })
+      });
+      const j = await res.json();
+      sent = !!j.success;
+    } catch (ex) { sent = false; }
+  }
+  if (CONFIG.SCRIPT_URL) {
+    try {
+      await fetch(CONFIG.SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ row: row, text: lastText, name: answers.name.value, phone: answers.phone.value })
+      });
+      sent = true;
+    } catch (ex) { sent = false; }
+  }
+  btn.disabled = false; btn.textContent = "Gửi khảo sát";
+  const zalo = CONFIG.CONTACT_ZALO ? " (Zalo: " + CONFIG.CONTACT_ZALO + ")" : "";
+  document.getElementById("doneMsg").textContent = sent
+    ? "Bên mình đã nhận được câu trả lời và sẽ liên hệ gửi báo giá sớm. Anh/chị có thể sao chép một bản để lưu lại."
+    : "Trang chưa gửi tự động được. Anh/chị bấm \"Sao chép câu trả lời\" rồi dán vào Zalo gửi cho bên mình" + zalo + " nhé.";
+  form.hidden = true;
+  document.getElementById("stepsBar").hidden = true;
+  document.getElementById("doneBox").hidden = false;
+  window.scrollTo({ top: 0 });
+});
+
+document.getElementById("copyBtn").addEventListener("click", async () => {
+  const hint = document.getElementById("copyHint");
+  try { await navigator.clipboard.writeText(lastText); hint.textContent = "Đã sao chép. Dán vào Zalo hoặc email để gửi."; }
+  catch (e) { hint.textContent = "Trình duyệt không cho sao chép tự động. Anh/chị chụp màn hình giúp bên mình nhé."; }
+});
+document.getElementById("editBtn").addEventListener("click", () => {
+  form.hidden = false;
+  document.getElementById("stepsBar").hidden = false;
+  document.getElementById("doneBox").hidden = true;
+  go(0);
+});
+
+build();
+go(0);
+updateAnswered();
+</script>
+</body>
+</html>
